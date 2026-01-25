@@ -1,0 +1,16 @@
+﻿:root {
+    --dark-blue: #4060a8;
+    --dark-blue-accent: #3f5ea74d;
+    --bright-blue: #0373fc;
+    --light-blue: #4ea8ff;
+    --white: #fff;
+    --black: #000;
+    --checked: #56c080;
+    --light-grey: #c1cbc9;
+    --gray: #666;
+    --borderWidth: .25rem;
+    --scarlet: #ba0c2f;
+    --red: #ff0000;
+    --bg-color: #2e2d32;
+    --text-color: #fff;
+}

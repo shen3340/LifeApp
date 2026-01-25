@@ -1,0 +1,74 @@
+/* #region Global Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--team-color);
+    border-radius: 6px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--team-color) #f1f1f1;
+}
+/* #endregion */
+
+/* #region Base / Reset / Typography */
+
+html {
+    font: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    margin: 0;
+}
+
+h1, body, .navbar.navbar-dark .navbar.navbar-nav .nav-likn:hover, .dropdown-item:hover {
+    color: var(--black);
+}
+
+/* #endregion*/
+
+/* #region Navbar*/
+.navbar {
+    background: var(--scarlet);
+    min-height: var(--navbar-height);
+    position: relative;
+}
+
+.navbar-wrapper {
+    flex-grow: 1;
+    transition: margin-left 0.3s ease;
+}
+
+.navbar-nav .nav-link {
+    text-decoration: none;
+    padding: 0;
+}
+
+.nav-link:hover {
+    color: var(--black) !important;
+}
+
+.dropdown-menu {
+    background-color: var(--gray);
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: var(--scarlet);
+}
+/* #endregion */

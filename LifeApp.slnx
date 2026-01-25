@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="LifeApp.SDK/LifeApp.SDK.csproj" Id="361ff630-827c-47e3-9ad2-513299d76fa2" />
+  <Project Path="LifeApp.Web/LifeApp.Web.csproj" />
+</Solution>

@@ -1,0 +1,81 @@
+﻿@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JS
+@inject DialogService DialogService
+
+<PageTitle>CFBR Orders</PageTitle>
+
+<div class="app-container">
+    <div class="navbar-wrapper">
+        <header>
+            <nav id="main-navbar" class="navbar navbar-expand-lg box-shadow">
+                <div class="container-fluid">
+                    <NavLink class="navbar-brand" href="/">
+                        <img class="img-fluid" width="60" height="60" alt="Profile Picture" title="Profile Picture"
+                             src="images/profile.jpg" />
+                    </NavLink>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#navbar-collapse-element"
+                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse d-sm-inline-flex justify-content-end" id="navbar-collapse-element">
+                        <ul class="navbar-nav d-sm-inline-flex align-items-center">
+                            <li class="nav-item dropdown me-4">
+                                <a class="nav-link dropdown-toggle text-white" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Finances
+                                </a>
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <NavLink class="dropdown-item nav-dropdown text-white" href="/Finances/Budget">
+                                        <span class="nav-text">Budget</span>
+                                    </NavLink>
+                                    <NavLink class="dropdown-item nav-dropdown text-white" href="/Finances/HYSA">
+                                        <span class="nav-text">HYSA</span>
+                                    </NavLink>
+                                    <NavLink class="dropdown-item nav-dropdown text-white" href="/Finances/Roth">
+                                        <span class="nav-text">Roth IRA</span>
+                                    </NavLink>
+                                    <NavLink class="dropdown-item nav-dropdown text-white" href="/Finances/GiftCards">
+                                        <span class="nav-text">Gift Cards</span>
+                                    </NavLink>
+                                </div>
+                            </li>
+
+                             <li class="nav-item me-4">
+                                <NavLink class="nav-link text-white" href="/Wishlist">
+                                    <span class="nav-text">Wish List</span>
+                                </NavLink>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="content">
+            <CascadingValue Value="EST">
+                @Body
+            </CascadingValue>
+        </main>
+    </div>
+</div>
+
+<RadzenDialog />
+<RadzenNotification />
+
+@code {
+    private static readonly TimeZoneInfo EasternStandardTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+    private DateTime EST { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        EST = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternStandardTimeZone).Date;
+
+    }
+}
