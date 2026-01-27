@@ -1,0 +1,38 @@
+﻿<#@ assembly name="Microsoft.VisualStudio.Interop"#>
+<#@ Assembly Name="System.Data" #>  
+<#@ import namespace="System.Data" #>  
+<#@ import namespace="System.Data.SqlClient" #>  
+<#@ import namespace="System.IO" #>  
+<#@ import namespace="System.Text.RegularExpressions" #>  
+<#@ import namespace="System.Linq" #>
+<#@ Assembly Name="System.Configuration.dll" #>
+<#@ import namespace="System.Configuration" #> 
+<#+  
+	// Methods and classes used to help generate enums
+
+    private string Pascalize(object value)
+    {
+        Regex rx = new Regex(@"(?:[^a-zA-Z0-9]*)(?<first>[a-zA-Z0-9])(?<reminder>[a-zA-Z0-9]*)(?:[^a-zA-Z0-9]*)");
+		return rx.Replace(value.ToString(), m => m.Groups["first"].ToString().ToUpper() + m.Groups["reminder"].ToString());
+    }
+
+    private class EnumTableData
+    {
+        public string TableName { get; set; }
+        public string EnumName { get; set; }
+        public string IdColumn { get; set; }
+		public string SqlConditions { get; set; }
+    }
+
+    private class EnumTableDataSingleDesc : EnumTableData
+    {
+        public string DescNameColumn { get; set; }
+    }
+
+    private class EnumTableDataMultiDesc : EnumTableData
+    {
+        public string[] DescNameColumns { get; set; }
+    }
+
+
+#>

@@ -1,0 +1,68 @@
+<#@ assembly name="Microsoft.VisualStudio.Interop"#>
+<#@ Assembly Name="System.Data" #>  
+<#@ import namespace="System.Data" #>  
+<#@ import namespace="System.Data.SqlClient" #>  
+<#@ import namespace="System.IO" #>  
+<#@ import namespace="System.Text.RegularExpressions" #>  
+<#@ import namespace="System.Linq" #>
+<#@ Assembly Name="System.Configuration.dll" #>
+<#@ import namespace="System.Configuration" #> 
+
+
+<#  
+
+
+	// Assumes that the ConnectionString was populated by the Poco.Code.ttinclude file
+	string connectionString = ConnectionString;
+
+	foreach (var tableData in enumTablesData)
+	{
+#>
+    public enum <#= !string.IsNullOrEmpty(tableData.EnumName) ? tableData.EnumName : tableData.TableName #>
+    {
+<#  
+    SqlConnection conn = new SqlConnection(connectionString);
+
+	string sql = "";
+	if (tableData.GetType() == typeof(EnumTableDataSingleDesc)) 
+	{
+		sql = String.Format("SELECT [{0}], [{1}] FROM [{2}] {3}ORDER BY [{0}]", tableData.IdColumn, ((EnumTableDataSingleDesc)tableData).DescNameColumn, tableData.TableName, !string.IsNullOrEmpty(tableData.SqlConditions) ? tableData.SqlConditions : string.Empty);
+	}
+	else if (tableData.GetType() == typeof(EnumTableDataMultiDesc)) 
+	{
+		sql = String.Format("SELECT [{0}], {1} FROM [{2}] {3}ORDER BY [{0}]", tableData.IdColumn, '[' + string.Join("], [",((EnumTableDataMultiDesc)tableData).DescNameColumns) + ']', tableData.TableName, !string.IsNullOrEmpty(tableData.SqlConditions) ? tableData.SqlConditions : string.Empty);
+	}
+
+    SqlCommand comm = new SqlCommand(sql, conn);
+
+    conn.Open();
+
+    SqlDataReader reader = comm.ExecuteReader();
+    bool loop = reader.Read();
+
+    while(loop)
+    {
+		if (tableData.GetType() == typeof(EnumTableDataSingleDesc))  
+		{
+#>
+			<#= Pascalize(reader[((EnumTableDataSingleDesc)tableData).DescNameColumn]) #> = <#= reader[tableData.IdColumn] #><# loop = reader.Read(); #><#= loop ? "," : string.Empty #>
+<#  
+		}
+		else if (tableData.GetType() == typeof(EnumTableDataMultiDesc)) 
+		{
+			string enumValueName = "";
+			foreach (string s in ((EnumTableDataMultiDesc)tableData).DescNameColumns)
+			{
+				enumValueName += reader[s].ToString();
+			}
+#>
+			<#= Pascalize(enumValueName) #> = <#= reader[tableData.IdColumn] #><# loop = reader.Read(); #><#= loop ? "," : string.Empty #>
+<#		
+		} 
+	}		//	Close WHILE loop
+#>
+	}		
+<# 
+			//	Close ENUM (Closing bracket above this)
+	}		//	Close FOR Loop
+#>		
