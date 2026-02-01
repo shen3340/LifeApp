@@ -1,7 +1,9 @@
 using LifeApp.Web.Data;
 using LifeApp.SDK.Data_Models;
 using LifeApp.SDK.Interfaces;
+using LifeApp.SDK.Interfaces.Services;
 using LifeApp.SDK.Repositories;
+using LifeApp.SDK.Services;
 using Microsoft.EntityFrameworkCore;
 using NLog.Web;
 using Radzen;
@@ -30,6 +32,9 @@ LifeAppDatabaseFactory.Setup(connectionString);
 builder.Services.AddScoped<IOperationResult, DBOperationResult>();
 builder.Services.AddScoped<IUnitOfWork, NPocoUnitOfWork>();
 
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IMovieGenreService, MovieGenreService>();
+builder.Services.AddScoped<IMovieProviderService, MovieProviderService>();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();

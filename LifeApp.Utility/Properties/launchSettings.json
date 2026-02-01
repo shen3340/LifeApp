@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LifeApp.Utility": {
+      "commandName": "Project",
+      "commandLineArgs": "LetterboxdSync"
+    }
+  }
+}
