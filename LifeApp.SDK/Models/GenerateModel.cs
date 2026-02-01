@@ -17,7 +17,7 @@
 //     Schema:                 ``
 //     Include Views:          `True`
 //
-//     Last Generated:         `1/26/2026 6:50:21 PM`
+//     Last Generated:         `1/27/2026 6:57:48 PM`
 
 using System;
 using System.Collections.Generic;
@@ -77,6 +77,26 @@ namespace LifeApp.SDK.Models
 		public string LoginProvider { get; set; }
 		public string Name { get; set; }
 		public string Value { get; set; }
+	}
+    public partial class Movie
+    {
+		public int Id { get; set; }
+		public string MovieName { get; set; }
+		public int ReleaseYear { get; set; }
+		public string PosterLink { get; set; }
+		public int? Runtime { get; set; }
+	}
+    public partial class MovieGenre
+    {
+		public int Id { get; set; }
+		public int MovieId { get; set; }
+		public string GenreName { get; set; }
+	}
+    public partial class MovieProvider
+    {
+		public int Id { get; set; }
+		public int MovieId { get; set; }
+		public string ProviderName { get; set; }
 	}
     public partial class WishList
     {
