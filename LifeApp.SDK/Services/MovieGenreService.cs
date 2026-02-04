@@ -77,40 +77,32 @@ namespace LifeApp.SDK.Services
             return Result;
         }
 
-        public IOperationResult BulkDeleteMovieGenres(List<MovieGenre> genres)
+        public IOperationResult TruncateMovieGenres()
         {
             Result.Reset();
-
-            if (genres == null || genres.Count == 0)
-                return Result;
 
             try
             {
                 UnitOfWork.BeginTransaction();
 
-                for (int movieGenreNum = 0; movieGenreNum < genres.Count; movieGenreNum += BatchSize)
-                {
-                    var batch = genres.Skip(movieGenreNum).Take(BatchSize).ToList();
-
-                    Db.Delete(batch);
-                }
+                Db.Execute("TRUNCATE TABLE MovieGenres");
 
                 UnitOfWork.Commit();
+
+                _logger.LogInformation($"Truncated MovieGenres table and reset identity.");
             }
             catch (Exception ex)
             {
                 UnitOfWork.Rollback();
 
-                _logger.LogError(ex, $"Error bulk deleting {genres.Count} MovieGenres");
+                _logger.LogError(ex, "Error truncating MovieGenres");
 
                 Result.GetException(ex);
 
                 throw;
             }
-            _logger.LogInformation($"Bulk deleted {genres.Count} MovieGenres.");
 
             return Result;
         }
-
     }
 }

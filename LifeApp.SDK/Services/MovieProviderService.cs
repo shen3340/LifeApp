@@ -77,40 +77,32 @@ namespace LifeApp.SDK.Services
             return Result;
         }
 
-        public IOperationResult BulkDeleteMovieProviders(List<MovieProvider> providers)
+        public IOperationResult TruncateMovieProviders()
         {
             Result.Reset();
-
-            if (providers == null || providers.Count == 0)
-                return Result;
 
             try
             {
                 UnitOfWork.BeginTransaction();
 
-                for (int movieProviderNum = 0; movieProviderNum < providers.Count; movieProviderNum += BatchSize)
-                {
-                    var batch = providers.Skip(movieProviderNum).Take(BatchSize).ToList();
-
-                    Db.Delete(batch);
-                }
+                Db.Execute("TRUNCATE TABLE MovieProviders");
 
                 UnitOfWork.Commit();
+
+                _logger.LogInformation($"Truncated MovieProviders table and reset identity.");
             }
             catch (Exception ex)
             {
                 UnitOfWork.Rollback();
 
-                _logger.LogError(ex, $"Error bulk deleting {providers.Count} MovieProviders");
-                
+                _logger.LogError(ex, "Error truncating MovieProviders");
+
                 Result.GetException(ex);
 
                 throw;
             }
-            _logger.LogInformation($"Bulk deleted {providers.Count} MovieProviders.");
 
             return Result;
         }
-
     }
 }

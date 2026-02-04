@@ -63,15 +63,26 @@ namespace LifeApp.Utility.Handlers
                 var letterboxdMovies = await ScrapeLetterboxdWatchlistAsync(watchlistUrl);
                 _logger.LogInformation($"Scraped {letterboxdMovies.Count} movies from Letterboxd.");
 
-                foreach (var movie in letterboxdMovies)
+                var tasks = letterboxdMovies.Select(async movie =>
                 {
                     var tmdbInfo = await GetTmdbMovieInfoAsync(movie.MovieName);
 
-                    if (tmdbInfo != null && tmdbInfo.Value.runtime.HasValue)
+                    if (tmdbInfo != null)
                     {
-                        movie.Runtime = tmdbInfo.Value.runtime.Value;
+                        movie.Runtime = tmdbInfo.Value.runtime;
+                        movie.Providers = tmdbInfo.Value.providers?.Count > 0
+                            ? tmdbInfo.Value.providers
+                            : ["NOT FOUND"];
+                        movie.Genres = tmdbInfo.Value.genres ?? [];
                     }
-                }
+                    else
+                    {
+                        movie.Providers = ["NOT FOUND"];
+                        movie.Genres = [];
+                    }
+                });
+
+                await Task.WhenAll(tasks);
 
                 var upsertResult = _movieService.UpsertMovies(letterboxdMovies);
 
@@ -82,18 +93,60 @@ namespace LifeApp.Utility.Handlers
                 }
 
                 var dbMovies = _movieService.GetAllMovies();
+
                 var watchlistKeys = letterboxdMovies
-                    .Select(movie => $"{movie.MovieName}_{movie.ReleaseYear}")
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                   .Select(movie => $"{movie.MovieName}_{movie.ReleaseYear}")
+                   .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
                 var moviesToDelete = dbMovies
                     .Where(movie => !watchlistKeys.Contains($"{movie.MovieName}_{movie.ReleaseYear}"))
                     .ToList();
 
-                if (moviesToDelete.Count > 0)
+                if (moviesToDelete.Count != 0)
                 {
                     _movieService.BulkDeleteMovies(moviesToDelete);
                 }
+
+                dbMovies = _movieService.GetAllMovies();
+
+                var movieIds = dbMovies.Select(movie => movie.Id).ToList();
+
+                _movieProviderService.TruncateMovieProviders();
+                _movieGenreService.TruncateMovieGenres();
+
+                var movieLookup = dbMovies.ToDictionary(
+                    movie => $"{movie.MovieName}_{movie.ReleaseYear}",
+                    StringComparer.OrdinalIgnoreCase);
+
+                var providersToInsert = new List<MovieProvider>();
+                var genresToInsert = new List<MovieGenre>();
+
+                foreach (var movie in letterboxdMovies)
+                {
+                    var key = $"{movie.MovieName}_{movie.ReleaseYear}";
+
+                    if (!movieLookup.TryGetValue(key, out var dbMovie))
+                        continue;
+
+                    providersToInsert.AddRange(
+                        movie.Providers.Select(provider => new MovieProvider
+                        {
+                            MovieId = dbMovie.Id,
+                            ProviderName = provider
+                        })
+                    );
+
+                    genresToInsert.AddRange(
+                        movie.Genres.Select(genre => new MovieGenre
+                        {
+                            MovieId = dbMovie.Id,
+                            GenreName = genre
+                        })
+                    );
+                }
+
+                _movieProviderService.BulkInsertMovieProviders(providersToInsert);
+                _movieGenreService.BulkInsertMovieGenres(genresToInsert);
 
                 stopwatch.Stop();
                 _logger.LogInformation($"Letterboxd watchlist sync complete in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");

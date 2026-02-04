@@ -12,10 +12,8 @@ namespace LifeApp.SDK.Interfaces.Services
     {
         public List<MovieProvider> GetAllMovieProviders();
 
-
         public IOperationResult BulkInsertMovieProviders(List<MovieProvider> movieProviders);
 
-
-        public IOperationResult BulkDeleteMovieProviders(List<MovieProvider> movieProviders);
+        public IOperationResult TruncateMovieProviders();
     }
 }

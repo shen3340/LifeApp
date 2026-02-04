@@ -12,10 +12,8 @@ namespace LifeApp.SDK.Interfaces.Services
     {
         public List<MovieGenre> GetAllMovieGenres();
 
-
         public IOperationResult BulkInsertMovieGenres(List<MovieGenre> movieGenres);
 
-
-        public IOperationResult BulkDeleteMovieGenres(List<MovieGenre> movieGenres);
+        public IOperationResult TruncateMovieGenres();
     }
 }
