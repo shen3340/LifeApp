@@ -4,6 +4,7 @@ using LifeApp.SDK.Models;
 using LifeApp.Utility.Interfaces;
 using LifeApp.Utility.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace LifeApp.Utility.Handlers
         private readonly IMovieService _movieService;
         private readonly IMovieProviderService _movieProviderService;
         private readonly IMovieGenreService _movieGenreService;
-        private readonly Settings _settings;
+        private readonly MovieSettings _movieSettings;
         private readonly ILogger<MovieSyncHandler> _logger;
         private readonly HttpClient _httpClient;
         private static readonly SemaphoreSlim _tmdbSemaphore = new(5);
@@ -30,13 +31,13 @@ namespace LifeApp.Utility.Handlers
             IMovieService movieService,
             IMovieProviderService movieProviderService,
             IMovieGenreService movieGenreService,
-            Settings settings,
+            IOptions<MovieSettings> movieSettingsOptions,
             ILogger<MovieSyncHandler> logger)
         {
             _movieService = movieService;
             _movieProviderService = movieProviderService;
             _movieGenreService = movieGenreService;
-            _settings = settings;
+            _movieSettings = movieSettingsOptions.Value;
             _logger = logger;
 
             _httpClient = new HttpClient();
@@ -49,7 +50,7 @@ namespace LifeApp.Utility.Handlers
             _httpClient.DefaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue(
                     "Bearer",
-                    _settings.TMDBApiKey.Replace("Bearer ", "").Trim()
+                    _movieSettings.TMDBApiKey.Replace("Bearer ", "").Trim()
                 );
         }
 
@@ -58,7 +59,7 @@ namespace LifeApp.Utility.Handlers
             var stopwatch = Stopwatch.StartNew();
             try
             {
-                string watchlistUrl = _settings.LetterboxdWatchlistUrl;
+                string watchlistUrl = _movieSettings.LetterboxdWatchlistUrl;
 
                 var letterboxdMovies = await ScrapeLetterboxdWatchlistAsync(watchlistUrl);
                 _logger.LogInformation($"Scraped {letterboxdMovies.Count} movies from Letterboxd.");
@@ -267,7 +268,7 @@ namespace LifeApp.Utility.Handlers
                         : ["NOT FOUND"];
                 }
 
-                var movieUrl = $"https://api.themoviedb.org/3/movie/{movieId}?language=en&api_key={_settings.TMDBApiKey}";
+                var movieUrl = $"https://api.themoviedb.org/3/movie/{movieId}?language=en&api_key={_movieSettings.TMDBApiKey}";
                 var movieResp = await _httpClient.GetAsync(movieUrl);
 
                 if (movieResp.IsSuccessStatusCode)

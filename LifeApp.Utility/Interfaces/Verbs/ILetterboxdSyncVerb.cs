@@ -1,9 +1,7 @@
-﻿using LifeApp.Utility.Verbs;
-
-namespace LifeApp.Utility.Interfaces.Verbs
+﻿namespace LifeApp.Utility.Interfaces.Verbs
 {
-    internal interface ILetterboxdSyncVerb
+    public interface ILetterboxdSyncVerb
     {
-        Task<int> Execute(LetterboxdSyncVerbOptions options);
+        Task<int> UpdateMovieWatchlistTables();
     }
 }

@@ -5,13 +5,12 @@ using Microsoft.Extensions.Logging;
 namespace LifeApp.Utility.Verbs
 {
     public class LetterboxdSyncVerb(
-        ILogger<LetterboxdSyncVerb> logger,
-        IMovieSyncHandler movieSyncHandler) : ILetterboxdSyncVerb
+        ILogger<LetterboxdSyncVerb> logger, IMovieSyncHandler movieSyncHandler) : ILetterboxdSyncVerb
     {
-        private readonly ILogger<LetterboxdSyncVerb> _logger = logger;
+        private readonly ILogger _logger = logger;
         private readonly IMovieSyncHandler _movieSyncHandler = movieSyncHandler;
 
-        public async Task<int> Execute(LetterboxdSyncVerbOptions options)
+        public async Task<int> UpdateMovieWatchlistTables()
         {
             try
             {
@@ -25,6 +24,7 @@ namespace LifeApp.Utility.Verbs
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Letterboxd watchlist sync failed.");
+
                 return 1;
             }
         }

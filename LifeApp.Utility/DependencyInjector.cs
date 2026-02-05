@@ -13,7 +13,7 @@ namespace LifeApp.Utility
 {
     internal class DependencyInjector
     {
-        public static IServiceProvider GetServiceProvider(IConfiguration configuration, Settings settings)
+        public static IServiceProvider GetServiceProvider(IConfiguration configuration)
         {
             ServiceCollection services = new();
 
@@ -23,31 +23,24 @@ namespace LifeApp.Utility
                     .AddNLog()
                     .SetMinimumLevel(LogLevel.Debug));
 
-            // ********************************************
-            // **** ---- LifeApp.SDK.Repositories ---- ****
-            // ********************************************
-
+            services.AddScoped<IOperationResult, DBOperationResult>();
             services.AddScoped<LifeApp.SDK.Interfaces.IUnitOfWork, LifeApp.SDK.Repositories.NPocoUnitOfWork>();
 
-            // *********************************************
-            // **** ---- LifeApp.SDK.Services ---- ****
-            // *********************************************
             services.AddScoped<LifeApp.SDK.Interfaces.Services.IMovieService, LifeApp.SDK.Services.MovieService>();
             services.AddScoped<LifeApp.SDK.Interfaces.Services.IMovieGenreService, LifeApp.SDK.Services.MovieGenreService>();
             services.AddScoped<LifeApp.SDK.Interfaces.Services.IMovieProviderService, LifeApp.SDK.Services.MovieProviderService>();
-            // *********************************************
-            // **** ---- Services Helpers ---- ****
-            // *********************************************
-            services.AddScoped<IOperationResult, DBOperationResult>();
-            services.AddSingleton<IConfiguration>(configuration);
+
+            services.Configure<MovieSettings>(configuration.GetSection("MovieSettings"));
+
             services.AddScoped<IMovieSyncHandler, MovieSyncHandler>();
-            services.AddSingleton(settings);
 
-            // *********************************************
-            // **** ---- LifeApp.Utility Verbs ---- ****
-            // *********************************************
-
-            services.AddScoped<ILetterboxdSyncVerb, LetterboxdSyncVerb>();
+            //Verbs
+            services.AddScoped<ILetterboxdSyncVerb, LetterboxdSyncVerb>(
+                serviceProvider => new LetterboxdSyncVerb(
+                    logger: serviceProvider.GetRequiredService<ILogger<LetterboxdSyncVerb>>(),
+                    movieSyncHandler: serviceProvider.GetRequiredService<IMovieSyncHandler>()
+                    )
+                );
 
             return services.BuildServiceProvider();
         }
