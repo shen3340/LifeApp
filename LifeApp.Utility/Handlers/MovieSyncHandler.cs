@@ -70,6 +70,7 @@ namespace LifeApp.Utility.Handlers
                     if (tmdbInfo != null)
                     {
                         movie.Runtime = tmdbInfo.Value.runtime;
+                        movie.PosterLink = tmdbInfo.Value.posterUrl;
                         movie.Providers = tmdbInfo.Value.providers?.Count > 0
                             ? tmdbInfo.Value.providers
                             : ["NOT FOUND"];
@@ -189,11 +190,6 @@ namespace LifeApp.Utility.Handlers
 
                     var nameAttr = lazyPoster.GetAttributeValue("data-item-name", null);
                     var decodedName = WebUtility.HtmlDecode(nameAttr);
-                    var filmId = lazyPoster.GetAttributeValue("data-film-id", null);
-                    var slug = lazyPoster.GetAttributeValue("data-item-slug", null);
-                    
-                    if (filmId == null || slug == null || string.IsNullOrEmpty(decodedName)) 
-                        continue;
 
                     var lastParen = decodedName.LastIndexOf('(');
                     int releaseYear = 0;
@@ -205,14 +201,10 @@ namespace LifeApp.Utility.Handlers
                         int.TryParse(decodedName[(lastParen + 1)..].TrimEnd(')'), out releaseYear);
                     }
 
-                    var digitPath = string.Join("/", filmId.ToCharArray());
-                    var posterUrl = $"https://a.ltrbxd.com/resized/film-poster/{digitPath}/{filmId}-{slug}-0-125-0-187-crop.jpg";
-
                     movies.Add(new SDK.Models.Movie
                     {
                         MovieName = movieName,
-                        ReleaseYear = releaseYear,
-                        PosterLink = posterUrl
+                        ReleaseYear = releaseYear
                     });
                 }
 
@@ -222,7 +214,7 @@ namespace LifeApp.Utility.Handlers
             return movies;
         }
 
-        private async Task<(int? runtime, List<string> providers, List<string> genres)?> GetTmdbMovieInfoAsync(string movieName)
+        private async Task<(int? runtime, string posterUrl, List<string> providers, List<string> genres)?> GetTmdbMovieInfoAsync(string movieName)
         {
             await _tmdbSemaphore.WaitAsync();
             try
@@ -249,6 +241,7 @@ namespace LifeApp.Utility.Handlers
                     return null;
 
                 int? runtime = null;
+                string posterUrl = "https://s.ltrbxd.com/static/img/empty-poster-125-AiuBHVCI.png";
                 var providers = new List<string>();
                 var genres = new List<string>();
 
@@ -274,7 +267,20 @@ namespace LifeApp.Utility.Handlers
                         : ["NOT FOUND"];
                 }
 
-                return (runtime, providers, genres);
+                var movieUrl = $"https://api.themoviedb.org/3/movie/{movieId}?language=en&api_key={_settings.TMDBApiKey}";
+                var movieResp = await _httpClient.GetAsync(movieUrl);
+
+                if (movieResp.IsSuccessStatusCode)
+                {
+                    var movieJson = JObject.Parse(await movieResp.Content.ReadAsStringAsync());
+                    var posterPath = movieJson["poster_path"]?.ToString();
+                    if (!string.IsNullOrEmpty(posterPath))
+                    {
+                        posterUrl = $"https://image.tmdb.org/t/p/w185{posterPath}";
+                    }
+                }
+
+                return (runtime, posterUrl, providers, genres);
             }
             finally
             {
