@@ -1,0 +1,49 @@
+﻿@page "/Movies"
+@using LifeApp.SDK.Interfaces.Services
+@inject IMovieService MovieService
+@inject IMovieProviderService MovieProviderService
+@inject IMovieGenreService MovieGenreService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<h1>My Wishlist</h1>
+
+<RadzenDataGrid @ref="grid"
+                Data="@movies"
+                TItem="Movie"
+                AllowFiltering="true"
+                AllowSorting="true"
+                AllowPaging="true"
+                PageSize="10">
+
+    <Columns>
+        <RadzenDataGridColumn TItem="Movie" Property="MovieName" Title="Name">
+            <EditTemplate Context="item">
+                <RadzenTextBox @bind-Value="item.MovieName" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="Movie" Property="PosterLink">
+            <Template Context="item">
+                <RadzenImage Path="@item.PosterLink" />
+            </Template>
+        </RadzenDataGridColumn>
+
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    private RadzenDataGrid<Movie> grid;
+    private List<Movie> movies = new();
+
+    protected override void OnInitialized()
+    {
+        LoadMovies();
+    }
+
+    private void LoadMovies()
+    {
+        movies = MovieService.GetAllMovies();
+    }
+
+}

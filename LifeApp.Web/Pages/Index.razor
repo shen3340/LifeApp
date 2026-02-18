@@ -1,9 +1,28 @@
 ﻿@page "/"
 @layout MainLayout
+@inject AuthenticationStateProvider AuthStateProvider
 
 <title>Life App</title>
 
 <h1>Life App</h1>
 
+<AuthorizeView>
+    <Authorized>
+        <p>You are logged in.</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are NOT logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+
 @code {
+    private ClaimsPrincipal user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+    }
 }
+

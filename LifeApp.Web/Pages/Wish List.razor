@@ -1,9 +1,99 @@
 ﻿@page "/WishList"
-@layout MainLayout
+@using LifeApp.SDK.Interfaces.Services
+@inject IWishListService WishListService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@attribute [AllowAnonymous]
+<h1>My Wishlist</h1>
 
-<title>Wish List- Life App</title>
+<RadzenDataGrid @ref="grid"
+                Data="@wishlists"
+                TItem="WishList"
+                RowUpdate="OnUpdateItem"
+                AllowFiltering="true"
+                AllowSorting="true"
+                AllowPaging="true"
+                PageSize="10"
+                EditMode="DataGridEditMode.Single">
 
-<h1>Wish List</h1>
+    <Columns>
+        <RadzenDataGridColumn TItem="WishList" Property="WishListName" Title="Item Name">
+            <EditTemplate Context="item">
+                <RadzenTextBox @bind-Value="item.WishListName" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="WishList" Property="WishListItemLink" Title="Link">
+            <EditTemplate Context="item">
+                <RadzenTextBox @bind-Value="item.WishListItemLink" Style="width:100%" />
+            </EditTemplate>
+        </RadzenDataGridColumn>
+
+    </Columns>
+</RadzenDataGrid>
+
+<RadzenButton Text="Add New Item" Icon="add_circle_outline" Click="AddNewItem" Style="margin-top:15px;" />
 
 @code {
+    private RadzenDataGrid<WishList> grid;
+    private List<WishList> wishlists = new();
+
+    protected override void OnInitialized()
+    {
+        LoadWishlists();
+    }
+
+    private void LoadWishlists()
+    {
+        wishlists = WishListService.GetAllActiveWishlists();
+    }
+
+    private async Task AddNewItem()
+    {
+        var newItem = new WishList
+        {
+            WishListName = "New Item",
+            CreateDate = DateTime.Now,
+            CreateById = "CurrentUserId", 
+            IsEnabled = true
+        };
+
+        var result = WishListService.InsertWishlist(newItem);
+
+        if (result.IsError)
+        {
+            Navigation.NavigateTo("/error");
+        }
+
+        if (result.IsError)
+        {
+            NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Added",
+                Detail = $"Added '{newItem.WishListName}'"
+            });
+
+            LoadWishlists();
+        }
+    }
+
+    private async Task OnUpdateItem(WishList item)
+    {
+        var result = WishListService.UpdateWishlist(item);
+
+        if (result.IsError)
+        {
+            Navigation.NavigateTo("/error");
+        }
+
+        NotificationService.Notify(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Success,
+                Summary = "Updated",
+                Detail = $"Updated '{item.WishListName}'"
+            });
+
+            LoadWishlists();
+    }
 }
