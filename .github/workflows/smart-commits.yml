@@ -49,7 +49,7 @@ jobs:
           fi
           echo "Label to add: $LABEL"
           
-          STATUS_LABELS='Backlog In-Progress Review Done'
+          STATUS_LABELS='Backlog "In Progress" Review Done'
           for l in $STATUS_LABELS; do
             curl -s -X DELETE -H "Authorization: token $GH_TOKEN" \
               -H "Accept: application/vnd.github.v3+json" \
