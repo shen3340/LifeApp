@@ -9,30 +9,26 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702; CS8618</NoWarn>
+    <NoWarn>1701;1702; CS8618; CS8601;CA1873;</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702; CS8618</NoWarn>
+    <NoWarn>1701;1702; CS8618; CS8601;CA1873;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Handlers\**" />
     <Compile Remove="Interfaces\**" />
     <Compile Remove="Models\**" />
-    <Compile Remove="Pages\Auth\**" />
     <Content Remove="Handlers\**" />
     <Content Remove="Interfaces\**" />
     <Content Remove="Models\**" />
-    <Content Remove="Pages\Auth\**" />
     <EmbeddedResource Remove="Handlers\**" />
     <EmbeddedResource Remove="Interfaces\**" />
     <EmbeddedResource Remove="Models\**" />
-    <EmbeddedResource Remove="Pages\Auth\**" />
     <None Remove="Handlers\**" />
     <None Remove="Interfaces\**" />
     <None Remove="Models\**" />
-    <None Remove="Pages\Auth\**" />
   </ItemGroup>
 
   <ItemGroup>

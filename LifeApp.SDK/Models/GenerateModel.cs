@@ -17,7 +17,7 @@
 //     Schema:                 ``
 //     Include Views:          `True`
 //
-//     Last Generated:         `1/27/2026 6:57:48 PM`
+//     Last Generated:         `2/21/2026 9:51:39 PM`
 
 using System;
 using System.Collections.Generic;
@@ -65,6 +65,13 @@ namespace LifeApp.SDK.Models
 		public string UserId { get; set; }
 		public string ClaimType { get; set; }
 		public string ClaimValue { get; set; }
+	}
+    public partial class AspNetUserLogin
+    {
+		public string LoginProvider { get; set; }
+		public string ProviderKey { get; set; }
+		public string ProviderDisplayName { get; set; }
+		public string UserId { get; set; }
 	}
     public partial class AspNetUserRole
     {

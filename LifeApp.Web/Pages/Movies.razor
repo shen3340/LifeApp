@@ -1,36 +1,46 @@
 ﻿@page "/Movies"
 @using LifeApp.SDK.Interfaces.Services
+@using LifeApp.Web.Pages.Shared.Components
 @inject IMovieService MovieService
 @inject IMovieProviderService MovieProviderService
 @inject IMovieGenreService MovieGenreService
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 
-<h1>My Wishlist</h1>
+<AuthorizeView Context="Authcontext">
+    <Authorized>
+        <h1>My Wishlist</h1>
 
-<RadzenDataGrid @ref="grid"
-                Data="@movies"
-                TItem="Movie"
-                AllowFiltering="true"
-                AllowSorting="true"
-                AllowPaging="true"
-                PageSize="10">
+        <RadzenDataGrid @ref="grid"
+                        Data="@movies"
+                        TItem="Movie"
+                        AllowFiltering="true"
+                        AllowSorting="true"
+                        AllowPaging="true"
+                        PageSize="10">
 
-    <Columns>
-        <RadzenDataGridColumn TItem="Movie" Property="MovieName" Title="Name">
-            <EditTemplate Context="item">
-                <RadzenTextBox @bind-Value="item.MovieName" />
-            </EditTemplate>
-        </RadzenDataGridColumn>
+            <Columns>
+                <RadzenDataGridColumn TItem="Movie" Property="MovieName" Title="Name">
+                    <EditTemplate Context="item">
+                        <RadzenTextBox @bind-Value="item.MovieName" />
+                    </EditTemplate>
+                </RadzenDataGridColumn>
 
-        <RadzenDataGridColumn TItem="Movie" Property="PosterLink">
-            <Template Context="item">
-                <RadzenImage Path="@item.PosterLink" />
-            </Template>
-        </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Movie" Property="PosterLink">
+                    <Template Context="item">
+                        <RadzenImage Path="@item.PosterLink" />
+                    </Template>
+                </RadzenDataGridColumn>
 
-    </Columns>
-</RadzenDataGrid>
+            </Columns>
+        </RadzenDataGrid>
+    </Authorized>
+    <NotAuthorized>
+        <NotAuthorizedMessage />
+    </NotAuthorized>
+</AuthorizeView>
+
+
 
 @code {
     private RadzenDataGrid<Movie> grid;

@@ -1,0 +1,20 @@
+﻿@page "/login"
+@attribute [AllowAnonymous]
+@inject NavigationManager Navigation
+
+<title>Login - Life App</title>
+
+<h1>Login</h1>
+
+<button class="btn btn-primary" @onclick="LoginWithGoogle">
+    Sign in with Google
+</button>
+
+@code {
+    private void LoginWithGoogle()
+    {
+        var returnUrl = Navigation.ToBaseRelativePath(Navigation.Uri);
+        Navigation.NavigateTo($"externallogin?returnUrl=/{returnUrl}", true);
+    }
+}
+
